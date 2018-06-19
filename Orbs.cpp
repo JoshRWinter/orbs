@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "Orbs.h"
+#include "asset.h"
 
 extern const char *vertexshader, *fragmentshader;
 
@@ -67,16 +68,25 @@ Orbs::Orbs(int w, int h, int count)
 
 	const float verts[] =
 	{
-    	-0.5f, -0.5f,
-    	0.5f, -0.5f,
-    	0.0f,  0.5f
+		0.5f,  0.5f,
+		0.5f, -0.5f,
+		-0.5f, -0.5f,
+		-0.5f,  0.5f,
+	};
+	const unsigned int indices[] =
+	{
+		0, 1, 3,
+		1, 2, 3
 	};
 
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
+	glGenBuffers(1, &ebo);
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, NULL);
 	glEnableVertexAttribArray(0);
 }
@@ -88,14 +98,23 @@ void Orbs::step()
 void Orbs::render() const
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	glDrawArrays(GL_TRIANGLES, 0, 4);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 void Orbs::stop()
 {
 	glDeleteProgram(program);
+	glDeleteBuffers(1, &ebo);
 	glDeleteBuffers(1, &vbo);
 	glDeleteVertexArrays(1, &vao);
+	glDeleteTextures(1, &texture);
+}
+
+void Orbs::load_texture()
+{
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image_data.width, image_data.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data.pixel_data);
 }
 
 void *Orbs::getproc(const char *name)

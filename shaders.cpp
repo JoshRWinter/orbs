@@ -7,7 +7,8 @@ const char *vertexshader=
 ,*fragmentshader=
 "#version 330 core\n"
 "out vec4 color;\n"
+"uniform sampler2D tex;\n"
 "void main(){\n"
-"color = vec4(1.0, 0.0, 0.0, 1.0);"
+"color = vec4(1.0, 0.0, 0.0, 1.0);\n"
 "}\n"
 ;

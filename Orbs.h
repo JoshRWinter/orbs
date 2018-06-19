@@ -15,10 +15,12 @@ public:
 	void stop();
 
 private:
+	void load_texture();
+
 	static void *getproc(const char*);
 	static void init_extensions();
 
-	unsigned vao, vbo, program;
+	unsigned vao, vbo, ebo, program, texture;
 };
 
 #endif // ORBS_H
