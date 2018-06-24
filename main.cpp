@@ -25,9 +25,11 @@ void go()
 	if(SDL_Init(SDL_INIT_VIDEO))
 		throw std::runtime_error("couldn't init sdl video");
 
-	SDL_Window *window = SDL_CreateWindow("orbs", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 450, SDL_WINDOW_OPENGL);
+	SDL_Window *window = SDL_CreateWindow("orbs", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN_DESKTOP);
 	if(window == NULL)
 		throw std::runtime_error("couldn't create sdl window");
+
+	SDL_ShowCursor(0);
 
 	// gl settings
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -57,8 +59,14 @@ void go()
 		SDL_Event event;
 		while(SDL_PollEvent(&event))
 		{
-			if(event.type == SDL_QUIT)
-				quit = true;
+			switch(event.type)
+			{
+				case SDL_QUIT:
+				case SDL_KEYDOWN:
+				case SDL_KEYUP:
+				case SDL_MOUSEMOTION:
+					quit = true;
+			}
 		}
 
 		SDL_GL_SwapWindow(window);
