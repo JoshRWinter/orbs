@@ -33,9 +33,10 @@ struct Orb
 		, xv(random(-10.15f, 10.15f) / 100.0f)
 		, yv(random(-10.15f, 10.15f) / 100.0f)
 		, rot(random(0.0f, PI * 2.0f))
+		, rotv(random(-0.1f, 0.1f))
 	{}
 
-	float x, y, xv, yv, rot;
+	float x, y, xv, yv, rot, rotv;
 
 	static inline float attributes[COUNT * 3];
 };

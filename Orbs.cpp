@@ -130,6 +130,7 @@ void Orbs::step()
 	{
 		orb.x += orb.xv;
 		orb.y += orb.yv;
+		orb.rot += orb.rotv;
 
 		Orb::attributes[index + 0] = orb.x;
 		Orb::attributes[index + 1] = orb.y;

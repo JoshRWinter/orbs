@@ -8,8 +8,9 @@ const char *vertexshader=
 "uniform float size;\n"
 "void main(){\n"
 "mat4 translate = mat4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, attrib.x + (size / 2.0), attrib.y + (size / 2.0), 0.0, 1.0);\n"
+"mat4 rotate = mat4(cos(attrib.b), sin(attrib.b), 0.0, 0.0, -sin(attrib.b), cos(attrib.b), 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);\n"
 "texcoord = tc;\n"
-"gl_Position = projection * translate * vec4(pos.x * size, pos.y * size, 0.0, 1.0);\n"
+"gl_Position = projection * translate * rotate * vec4(pos.x * size, pos.y * size, 0.0, 1.0);\n"
 "}\n"
 ,*fragmentshader=
 "#version 330 core\n"
