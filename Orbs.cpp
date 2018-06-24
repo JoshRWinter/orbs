@@ -112,11 +112,14 @@ Orbs::Orbs(int w, int h, int count)
 	glVertexAttribPointer(0, 2, GL_FLOAT, false, sizeof(float) * 4, NULL);
 	glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(float) * 4, (void*)(sizeof(float)*2));
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_attribute);
-	glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, NULL);
+	glVertexAttribPointer(2, 3, GL_FLOAT, false, 3 * sizeof(float), NULL);
+	glVertexAttribPointer(3, 1, GL_FLOAT, false, 3 * sizeof(float), (void*)(2 * sizeof(float)));
 	glVertexAttribDivisor(2, 1);
+	glVertexAttribDivisor(3, 1);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
 
 	// generate the orbs
 	for(int i = 0; i < Orb::COUNT; ++i)
