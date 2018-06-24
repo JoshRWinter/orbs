@@ -132,10 +132,13 @@ void Orbs::step()
 		orb.y += orb.yv;
 		orb.rot += orb.rotv;
 
-		Orb::attributes[index + 0] = orb.x;
-		Orb::attributes[index + 1] = orb.y;
-		Orb::attributes[index + 2] = orb.rot;
-		index += 3;
+		for(Orb &o : orb_list)
+		{
+			if(&o == &orb)
+				continue;
+
+			orb.checkcollision(o);
+		}
 
 		if(orb.x + Orb::SIZE > world.right)
 		{
@@ -157,6 +160,11 @@ void Orbs::step()
 			orb.y = world.top;
 			orb.yv = -orb.yv;
 		}
+
+		Orb::attributes[index + 0] = orb.x;
+		Orb::attributes[index + 1] = orb.y;
+		Orb::attributes[index + 2] = orb.rot;
+		index += 3;
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_attribute);

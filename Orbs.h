@@ -24,7 +24,7 @@ inline float random(float low, float high)
 
 struct Orb
 {
-	static constexpr float SIZE = 1.0f;
+	static constexpr float SIZE = 2.0f;
 	static constexpr int COUNT = 10;
 
 	Orb()
@@ -33,8 +33,36 @@ struct Orb
 		, xv(random(-10.15f, 10.15f) / 100.0f)
 		, yv(random(-10.15f, 10.15f) / 100.0f)
 		, rot(random(0.0f, PI * 2.0f))
-		, rotv(random(-0.1f, 0.1f))
+		, rotv(random(-0.07f, 0.07f))
 	{}
+
+	void checkcollision(Orb &other)
+	{
+		float xdist=x-other.x;
+		float ydist=y-other.y;
+		float distsquared=(xdist*xdist)+(ydist*ydist);
+		if(!(distsquared<=SIZE*SIZE))
+			return;
+		double xVelocity = other.xv - xv;
+		double yVelocity = other.yv - yv;
+		double dotProduct = xdist*xVelocity + ydist*yVelocity;
+		//Neat vector maths, used for checking if the objects moves towards one another.
+		if(dotProduct > 0){
+			float collisionScale = dotProduct / distsquared;
+			float xCollision = xdist * collisionScale;
+			float yCollision = ydist * collisionScale;
+			//The Collision vector is the speed difference projected on the Dist vector,
+			//thus it is the component of the speed difference needed for the collision.
+			const float MASS = 1.0f;
+			float combinedMass = MASS + MASS;
+			float collisionWeightA = 2.0f * MASS / combinedMass;
+			float collisionWeightB = 2.0f * MASS / combinedMass;
+			xv += collisionWeightA * xCollision;
+			yv += collisionWeightA * yCollision;
+			other.xv -= collisionWeightB * xCollision;
+			other.yv -= collisionWeightB * yCollision;
+		}
+	}
 
 	float x, y, xv, yv, rot, rotv;
 
