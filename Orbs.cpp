@@ -44,7 +44,7 @@ Orbs::Orbs(int w, int h, int count)
 	// opengl settings
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// shaders
 	const unsigned vshader = glCreateShader(GL_VERTEX_SHADER);
@@ -204,7 +204,6 @@ void Orbs::load_texture()
 	std::unique_ptr<unsigned char[]> data(new unsigned char[data_size]);
 	fread(data.get(), 1, data_size, file);
 	fclose(file);
-	press::fwriteln(stderr, "width: {}, height: {}", width, height);
 
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
