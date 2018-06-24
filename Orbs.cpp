@@ -28,10 +28,18 @@ static PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
 static PFNGLDELETEBUFFERSPROC glDeleteBuffers;
 static PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
 static PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
+static PFNGLVERTEXATTRIBDIVISORPROC glVertexAttribDivisor;
+static PFNGLUNIFORM1FPROC glUniform1f;
+static PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced;
 
 Orbs::Orbs(int w, int h, int count)
 {
 	init_extensions();
+
+	world.left = -8.0f;
+	world.right = 8.0f;
+	world.bottom = 4.5f;
+	world.top = -4.5f;
 
 	// opengl settings
 	glEnable(GL_BLEND);
@@ -68,8 +76,11 @@ Orbs::Orbs(int w, int h, int count)
 	glDeleteShader(fshader);
 	glUseProgram(program);
 
+	uniform.size = get_uniform("size");
+	glUniform1f(uniform.size, Orb::SIZE);
+
 	float matrix[16];
-	initortho(matrix, -8.0f, 8.0f, 4.5f, -4.5f, -1.0f, 1.0f);
+	initortho(matrix, world.left, world.right, world.bottom, world.top, -1.0f, 1.0f);
 	uniform.projection = get_uniform("projection");
 	glUniformMatrix4fv(uniform.projection, 1, false, matrix);
 
@@ -91,6 +102,7 @@ Orbs::Orbs(int w, int h, int count)
 
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
+	glGenBuffers(1, &vbo_attribute);
 	glGenBuffers(1, &ebo);
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -99,18 +111,61 @@ Orbs::Orbs(int w, int h, int count)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, false, sizeof(float) * 4, NULL);
 	glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(float) * 4, (void*)(sizeof(float)*2));
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_attribute);
+	glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, NULL);
+	glVertexAttribDivisor(2, 1);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
+	// generate the orbs
+	for(int i = 0; i < Orb::COUNT; ++i)
+		orb_list.push_back({});
 }
 
 void Orbs::step()
 {
+	int index = 0;
+	for(Orb &orb : orb_list)
+	{
+		orb.x += orb.xv;
+		orb.y += orb.yv;
+
+		Orb::attributes[index + 0] = orb.x;
+		Orb::attributes[index + 1] = orb.y;
+		Orb::attributes[index + 2] = orb.rot;
+		index += 3;
+
+		if(orb.x + Orb::SIZE > world.right)
+		{
+			orb.x = world.right - Orb::SIZE;
+			orb.xv = -orb.xv;
+		}
+		else if(orb.x < world.left)
+		{
+			orb.x = world.left;
+			orb.xv = -orb.xv;
+		}
+		if(orb.y + Orb::SIZE > world.bottom)
+		{
+			orb.y = world.bottom - Orb::SIZE;
+			orb.yv = -orb.yv;
+		}
+		else if(orb.y < world.top)
+		{
+			orb.y = world.top;
+			orb.yv = -orb.yv;
+		}
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_attribute);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Orb::attributes), Orb::attributes, GL_DYNAMIC_DRAW);
 }
 
 void Orbs::render() const
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, Orb::COUNT);
 }
 
 void Orbs::stop()
@@ -193,6 +248,9 @@ void Orbs::init_extensions()
 	glDeleteBuffers = (decltype(glDeleteBuffers))getproc("glDeleteBuffers");
 	glGetUniformLocation = (decltype(glGetUniformLocation))getproc("glGetUniformLocation");
 	glUniformMatrix4fv = (decltype(glUniformMatrix4fv))getproc("glUniformMatrix4fv");
+	glVertexAttribDivisor = (decltype(glVertexAttribDivisor))getproc("glVertexAttribDivisor");
+	glUniform1f = (decltype(glUniform1f))getproc("glUniform1f");
+	glDrawElementsInstanced = (decltype(glDrawElementsInstanced))getproc("glDrawElementsInstanced");
 }
 
 void Orbs::initortho(float *matrix,float left,float right,float bottom,float top,float znear,float zfar)
