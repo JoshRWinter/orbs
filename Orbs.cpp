@@ -1,5 +1,8 @@
+#include <memory>
+
+#include <stdio.h>
+
 #include "Orbs.h"
-#include "asset.h"
 
 extern const char *vertexshader, *fragmentshader;
 
@@ -107,11 +110,6 @@ void Orbs::step()
 void Orbs::render() const
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_2D, texture);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
@@ -126,9 +124,30 @@ void Orbs::stop()
 
 void Orbs::load_texture()
 {
+	FILE *file = fopen("orb.tga", "rb");
+	if(file == NULL)
+		throw std::runtime_error("could not find orb.tga");
+
+	unsigned short width, height;
+	fseek(file, 12, SEEK_SET);
+	fread(&width, 1, sizeof(width), file);
+	fread(&height, 1, sizeof(height), file);
+	fseek(file, 18, SEEK_SET);
+	const int data_size = width * height * 4;
+	std::unique_ptr<unsigned char[]> data(new unsigned char[data_size]);
+	fread(data.get(), 1, data_size, file);
+	fclose(file);
+	press::fwriteln(stderr, "width: {}, height: {}", width, height);
+
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_data.width, image_data.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data.pixel_data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, data.get());
 }
 
 void *Orbs::getproc(const char *name)
