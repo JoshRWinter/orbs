@@ -30,8 +30,8 @@ struct Orb
 	Orb()
 		: x(-SIZE / 2)
 		, y(-SIZE / 2)
-		, xv(random(-10.15f, 10.15f) / 100.0f)
-		, yv(random(-10.15f, 10.15f) / 100.0f)
+		, xv(random(-7.0f, 7.0f) / 100.0f)
+		, yv(random(-7.0f, 7.0f) / 100.0f)
 		, rot(random(0.0f, PI * 2.0f))
 		, rotv(random(-0.07f, 0.07f))
 	{}
