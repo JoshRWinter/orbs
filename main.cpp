@@ -5,7 +5,12 @@
 
 static void go();
 
-int main()
+#undef main
+#ifdef _WIN32
+int WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+#else
+int main(int argc, char *argv[])
+#endif // _WIN32
 {
 	try
 	{
@@ -29,6 +34,9 @@ void go()
 	if(window == NULL)
 		throw std::runtime_error("couldn't create sdl window");
 
+	int width, height;
+	SDL_GetWindowSize(window, &width, &height);
+
 	SDL_ShowCursor(0);
 
 	// gl settings
@@ -46,11 +54,12 @@ void go()
 	SDL_GL_SetSwapInterval(1);
 
 	// application object
-	Orbs orbs(800, 450, 4);
+	Orbs orbs(width, height, 4);
 
 	// event loop
 	bool quit = false;
 	auto start = std::chrono::high_resolution_clock::now();
+	int mouse_move_count = 0;
 	while(!quit)
 	{
 		orbs.step();
@@ -61,10 +70,11 @@ void go()
 		{
 			switch(event.type)
 			{
-				case SDL_QUIT:
-				case SDL_KEYDOWN:
-				case SDL_KEYUP:
 				case SDL_MOUSEMOTION:
+					if(mouse_move_count++ < 3)
+						break;
+				case SDL_KEYDOWN:
+				case SDL_QUIT:
 					quit = true;
 			}
 		}

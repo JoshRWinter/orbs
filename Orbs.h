@@ -6,7 +6,13 @@
 
 #include <time.h>
 
+#ifdef _WIN32
+#include <SDL.h>
+#define NOMINMAX
+#include <windows.h>
+#else
 #include <SDL2/SDL.h>
+#endif // _WIN32
 #include <GL/gl.h>
 
 #include "press.h"
@@ -24,14 +30,14 @@ inline float random(float low, float high)
 
 struct Orb
 {
-	static constexpr float SIZE = 2.0f;
-	static constexpr int COUNT = 10;
+	static constexpr float SIZE = 1.5f;
+	static constexpr int COUNT = 20;
 
 	Orb()
 		: x(-SIZE / 2)
 		, y(-SIZE / 2)
-		, xv(random(-7.0f, 7.0f) / 100.0f)
-		, yv(random(-7.0f, 7.0f) / 100.0f)
+		, xv(random(-5.0f, 5.0f) / 100.0f)
+		, yv(random(-5.0f, 5.0f) / 100.0f)
 		, rot(random(0.0f, PI * 2.0f))
 		, rotv(random(-0.07f, 0.07f))
 	{}

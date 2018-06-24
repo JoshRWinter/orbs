@@ -4,6 +4,11 @@
 
 #include "Orbs.h"
 
+#ifdef _WIN32
+#include "glext.h"
+#include "wglext.h"
+#endif // _WIN32
+
 extern const char *vertexshader, *fragmentshader;
 
 static PFNGLCREATESHADERPROC glCreateShader;
@@ -247,7 +252,7 @@ void Orbs::init_extensions()
 	glDeleteShader = (decltype(glDeleteShader))getproc("glDeleteShader");
 	glCreateProgram = (decltype(glCreateProgram))getproc("glCreateProgram");
 	glUseProgram = (decltype(glUseProgram))getproc("glUseProgram");
-	glDeleteProgram = (decltype(glDeleteProgram))getproc("glDeletProgram");
+	glDeleteProgram = (decltype(glDeleteProgram))getproc("glDeleteProgram");
 	glGenVertexArrays = (decltype(glGenVertexArrays))getproc("glGenVertexArrays");
 	glGenBuffers = (decltype(glGenBuffers))getproc("glGenBuffers");
 	glBindVertexArray = (decltype(glBindVertexArray))getproc("glBindVertexArray");
