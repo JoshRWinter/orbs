@@ -16,11 +16,14 @@ public:
 
 private:
 	void load_texture();
+	int get_uniform(const char*) const;
 
 	static void *getproc(const char*);
 	static void init_extensions();
+	static void initortho(float*, float, float, float, float, float, float);
 
 	unsigned vao, vbo, ebo, program, texture;
+	struct { int projection; } uniform;
 };
 
 #endif // ORBS_H

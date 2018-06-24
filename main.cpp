@@ -25,7 +25,7 @@ void go()
 	if(SDL_Init(SDL_INIT_VIDEO))
 		throw std::runtime_error("couldn't init sdl video");
 
-	SDL_Window *window = SDL_CreateWindow("orbs", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_OPENGL);
+	SDL_Window *window = SDL_CreateWindow("orbs", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 450, SDL_WINDOW_OPENGL);
 	if(window == NULL)
 		throw std::runtime_error("couldn't create sdl window");
 
@@ -44,7 +44,7 @@ void go()
 	SDL_GL_SetSwapInterval(1);
 
 	// application object
-	Orbs orbs(800, 600, 4);
+	Orbs orbs(800, 450, 4);
 
 	// event loop
 	bool quit = false;

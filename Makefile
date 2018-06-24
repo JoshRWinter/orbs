@@ -1,4 +1,4 @@
-CPPFLAGS := -g -c -std=c++17
+CPPFLAGS := -Wall -g -c -std=c++17
 LFLAGS := -lSDL2 -lGL
 OBJECTS := main.o Orbs.o shaders.o
 
