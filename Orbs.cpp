@@ -1,6 +1,7 @@
 #include <memory>
 
 #include <stdio.h>
+#include <string.h>
 
 #include "Orbs.h"
 
@@ -196,11 +197,26 @@ void Orbs::stop()
 
 void Orbs::load_texture()
 {
+	unsigned short width, height;
+	const unsigned char *raw;
+#ifdef _WIN32
+	HRSRC res = FindResource(GetModuleHandle(NULL), "#1", "TARGA");
+	if(res == NULL)
+		throw std::runtime_error("FindResource failure");
+	HGLOBAL handle = LoadResource(GetModuleHandle(NULL), res);
+	if(handle == NULL)
+		throw std::runtime_error("LoadResource failure");
+	unsigned char *data = (unsigned char*)LockResource(handle);
+	if(data == NULL)
+		throw std::runtime_error("could not find the orb resource");
+	memcpy(&width, data + 12, sizeof(width));
+	memcpy(&height, data + 14, sizeof(height));
+	raw = (unsigned char*)data + 18;
+#else
 	FILE *file = fopen("orb.tga", "rb");
 	if(file == NULL)
 		throw std::runtime_error("could not find orb.tga");
 
-	unsigned short width, height;
 	fseek(file, 12, SEEK_SET);
 	fread(&width, 1, sizeof(width), file);
 	fread(&height, 1, sizeof(height), file);
@@ -208,7 +224,9 @@ void Orbs::load_texture()
 	const int data_size = width * height * 4;
 	std::unique_ptr<unsigned char[]> data(new unsigned char[data_size]);
 	fread(data.get(), 1, data_size, file);
+	raw = data.get();
 	fclose(file);
+#endif // _WIN32
 
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -218,7 +236,7 @@ void Orbs::load_texture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, data.get());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, raw);
 }
 
 void *Orbs::getproc(const char *name)
