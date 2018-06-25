@@ -30,7 +30,7 @@ inline float random(float low, float high)
 
 struct Orb
 {
-	static constexpr float SIZE = 1.75f;
+	static constexpr float SIZE = 1.5f;
 	static constexpr int COUNT = 20;
 
 	Orb()
