@@ -74,6 +74,16 @@ void go()
 					if(mouse_move_count++ < 3)
 						break;
 				case SDL_KEYDOWN:
+					if(event.key.keysym.sym == SDLK_KP_PLUS)
+					{
+						orbs.add();
+						break;
+					}
+					else if(event.key.keysym.sym == SDLK_KP_MINUS)
+					{
+						orbs.remove();
+						break;
+					}
 				case SDL_QUIT:
 					quit = true;
 			}

@@ -40,6 +40,7 @@ static PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced;
 
 Orbs::Orbs(int w, int h, int count)
 {
+	Orb::attributes.reset(new float[Orb::COUNT * 3]);
 	init_extensions();
 
 	world.left = -8.0f;
@@ -177,7 +178,7 @@ void Orbs::step()
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_attribute);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Orb::attributes), Orb::attributes, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * Orb::COUNT * 3, Orb::attributes.get(), GL_DYNAMIC_DRAW);
 }
 
 void Orbs::render() const
@@ -193,6 +194,22 @@ void Orbs::stop()
 	glDeleteBuffers(1, &vbo);
 	glDeleteVertexArrays(1, &vao);
 	glDeleteTextures(1, &texture);
+}
+
+void Orbs::add()
+{
+	++Orb::COUNT;
+	Orb::attributes.reset(new float[Orb::COUNT * 3]);
+	orb_list.push_back({});
+}
+
+void Orbs::remove()
+{
+	if(orb_list.size() < 1)
+		return;
+
+	--Orb::COUNT;
+	orb_list.erase(orb_list.begin());
 }
 
 void Orbs::load_texture()

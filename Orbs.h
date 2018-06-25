@@ -31,7 +31,7 @@ inline float random(float low, float high)
 struct Orb
 {
 	static constexpr float SIZE = 1.5f;
-	static constexpr int COUNT = 20;
+	static inline int COUNT = 20;
 
 	Orb()
 		: x(-SIZE / 2)
@@ -72,7 +72,7 @@ struct Orb
 
 	float x, y, xv, yv, rot, rotv;
 
-	static inline float attributes[COUNT * 3];
+	static inline std::unique_ptr<float[]> attributes;
 };
 
 class Orbs
@@ -82,6 +82,8 @@ public:
 	void step();
 	void render() const;
 	void stop();
+	void add();
+	void remove();
 
 private:
 	void load_texture();
