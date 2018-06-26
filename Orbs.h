@@ -15,7 +15,38 @@
 #endif // _WIN32
 #include <GL/gl.h>
 
+#ifdef _WIN32
+#include "glext.h"
+#include "wglext.h"
+#endif // _WIN32
+
 #include "press.h"
+
+static PFNGLCREATESHADERPROC glCreateShader;
+static PFNGLSHADERSOURCEPROC glShaderSource;
+static PFNGLCOMPILESHADERPROC glCompileShader;
+static PFNGLGETSHADERIVPROC glGetShaderiv;
+static PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+static PFNGLATTACHSHADERPROC glAttachShader;
+static PFNGLLINKPROGRAMPROC glLinkProgram;
+static PFNGLDELETESHADERPROC glDeleteShader;
+static PFNGLCREATEPROGRAMPROC glCreateProgram;
+static PFNGLUSEPROGRAMPROC glUseProgram;
+static PFNGLDELETEPROGRAMPROC glDeleteProgram;
+static PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
+static PFNGLGENBUFFERSPROC glGenBuffers;
+static PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
+static PFNGLBINDBUFFERPROC glBindBuffer;
+static PFNGLBUFFERDATAPROC glBufferData;
+static PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
+static PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+static PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
+static PFNGLDELETEBUFFERSPROC glDeleteBuffers;
+static PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+static PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
+static PFNGLVERTEXATTRIBDIVISORPROC glVertexAttribDivisor;
+static PFNGLUNIFORM1FPROC glUniform1f;
+static PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced;
 
 #define PI 3.1415926f
 
@@ -28,9 +59,16 @@ inline float random(float low, float high)
 	return urd(generator);
 }
 
+inline int random(int low, int high)
+{
+	std::uniform_int_distribution<int> uid(low, high);
+
+	return uid(generator);
+}
+
 struct Orb
 {
-	static constexpr float SIZE = 1.5f;
+	static constexpr float SIZE = 1.75f;
 	static inline int COUNT = 20;
 
 	Orb()
@@ -40,6 +78,7 @@ struct Orb
 		, yv(random(-5.0f, 5.0f) / 100.0f)
 		, rot(random(0.0f, PI * 2.0f))
 		, rotv(random(-0.07f, 0.07f))
+		, texture(random(0, 5))
 	{}
 
 	void checkcollision(Orb &other)
@@ -71,6 +110,7 @@ struct Orb
 	}
 
 	float x, y, xv, yv, rot, rotv;
+	int texture; // [0, 6)
 
 	static inline std::unique_ptr<float[]> attributes;
 };
@@ -93,7 +133,7 @@ private:
 	static void init_extensions();
 	static void initortho(float*, float, float, float, float, float, float);
 
-	unsigned vao, vbo, ebo, vbo_attribute, program, texture;
+	unsigned vao, vbo, ebo, vbo_attribute, vbo_texcoords, program, texture;
 	struct { int projection, size; } uniform;
 	struct { float left, right, bottom, top; } world;
 	std::vector<Orb> orb_list;

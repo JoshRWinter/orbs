@@ -5,42 +5,11 @@
 
 #include "Orbs.h"
 
-#ifdef _WIN32
-#include "glext.h"
-#include "wglext.h"
-#endif // _WIN32
-
 extern const char *vertexshader, *fragmentshader;
-
-static PFNGLCREATESHADERPROC glCreateShader;
-static PFNGLSHADERSOURCEPROC glShaderSource;
-static PFNGLCOMPILESHADERPROC glCompileShader;
-static PFNGLGETSHADERIVPROC glGetShaderiv;
-static PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
-static PFNGLATTACHSHADERPROC glAttachShader;
-static PFNGLLINKPROGRAMPROC glLinkProgram;
-static PFNGLDELETESHADERPROC glDeleteShader;
-static PFNGLCREATEPROGRAMPROC glCreateProgram;
-static PFNGLUSEPROGRAMPROC glUseProgram;
-static PFNGLDELETEPROGRAMPROC glDeleteProgram;
-static PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
-static PFNGLGENBUFFERSPROC glGenBuffers;
-static PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
-static PFNGLBINDBUFFERPROC glBindBuffer;
-static PFNGLBUFFERDATAPROC glBufferData;
-static PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
-static PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
-static PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
-static PFNGLDELETEBUFFERSPROC glDeleteBuffers;
-static PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
-static PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
-static PFNGLVERTEXATTRIBDIVISORPROC glVertexAttribDivisor;
-static PFNGLUNIFORM1FPROC glUniform1f;
-static PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced;
 
 Orbs::Orbs(int w, int h, int count)
 {
-	Orb::attributes.reset(new float[Orb::COUNT * 3]);
+	Orb::attributes.reset(new float[Orb::COUNT * 4]);
 	init_extensions();
 
 	world.left = -8.0f;
@@ -97,8 +66,8 @@ Orbs::Orbs(int w, int h, int count)
 	{
 		-0.5f, -0.5f, 0.0f, 1.0f,
 		-0.5f, 0.5f, 0.0f, 0.0f,
-		0.5f, 0.5f, 1.0f, 0.0f,
-		0.5f, -0.5f, 1.0f, 1.0f
+		0.5f, 0.5f, (1.0f / 6.0f), 0.0f,
+		0.5f, -0.5f, (1.0f / 6.0f), 1.0f
 	};
 
 	const unsigned int indices[] =
@@ -111,22 +80,30 @@ Orbs::Orbs(int w, int h, int count)
 	glGenBuffers(1, &vbo);
 	glGenBuffers(1, &vbo_attribute);
 	glGenBuffers(1, &ebo);
+
 	glBindVertexArray(vao);
+
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, false, sizeof(float) * 4, NULL);
-	glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(float) * 4, (void*)(sizeof(float)*2));
+	glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(float) * 4, (void*)(sizeof(float) * 2));
+
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_attribute);
-	glVertexAttribPointer(2, 3, GL_FLOAT, false, 3 * sizeof(float), NULL);
-	glVertexAttribPointer(3, 1, GL_FLOAT, false, 3 * sizeof(float), (void*)(2 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, false, 4 * sizeof(float), NULL);
+	glVertexAttribPointer(3, 1, GL_FLOAT, false, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	glVertexAttribPointer(4, 1, GL_FLOAT, false, 4 * sizeof(float), (void*)(3 * sizeof(float)));
+
 	glVertexAttribDivisor(2, 1);
 	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 	glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(4);
 
 	// generate the orbs
 	for(int i = 0; i < Orb::COUNT; ++i)
@@ -174,11 +151,12 @@ void Orbs::step()
 		Orb::attributes[index + 0] = orb.x;
 		Orb::attributes[index + 1] = orb.y;
 		Orb::attributes[index + 2] = orb.rot;
-		index += 3;
+		Orb::attributes[index + 3] = orb.texture / 6.0f;
+		index += 4;
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_attribute);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * Orb::COUNT * 3, Orb::attributes.get(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * Orb::COUNT * 4, Orb::attributes.get(), GL_DYNAMIC_DRAW);
 }
 
 void Orbs::render() const
@@ -192,6 +170,7 @@ void Orbs::stop()
 	glDeleteProgram(program);
 	glDeleteBuffers(1, &ebo);
 	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &vbo_attribute);
 	glDeleteVertexArrays(1, &vao);
 	glDeleteTextures(1, &texture);
 }
@@ -199,7 +178,7 @@ void Orbs::stop()
 void Orbs::add()
 {
 	++Orb::COUNT;
-	Orb::attributes.reset(new float[Orb::COUNT * 3]);
+	Orb::attributes.reset(new float[Orb::COUNT * 4]);
 	orb_list.push_back({});
 }
 
