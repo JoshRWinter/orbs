@@ -50,7 +50,7 @@ static PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced;
 
 #define PI 3.1415926f
 
-inline std::mt19937 generator;
+inline std::mt19937 generator(time(NULL));
 
 inline float random(float low, float high)
 {
