@@ -69,7 +69,6 @@ inline int random(int low, int high)
 struct Orb
 {
 	static constexpr float SIZE = 1.75f;
-	static inline int COUNT = 20;
 
 	Orb()
 		: x(-SIZE / 2)
@@ -111,8 +110,6 @@ struct Orb
 
 	float x, y, xv, yv, rot, rotv;
 	int texture; // [0, 6)
-
-	static inline std::unique_ptr<float[]> attributes;
 };
 
 class Orbs
@@ -137,6 +134,7 @@ private:
 	struct { int projection, size; } uniform;
 	struct { float left, right, bottom, top; } world;
 	std::vector<Orb> orb_list;
+	std::unique_ptr<float[]> attributes;
 };
 
 #endif // ORBS_H

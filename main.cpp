@@ -54,7 +54,7 @@ void go()
 	SDL_GL_SetSwapInterval(1);
 
 	// application object
-	Orbs orbs(width, height, 4);
+	Orbs orbs(width, height, 10);
 
 	// event loop
 	bool quit = false;

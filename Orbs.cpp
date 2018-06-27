@@ -9,7 +9,7 @@ extern const char *vertexshader, *fragmentshader;
 
 Orbs::Orbs(int w, int h, int count)
 {
-	Orb::attributes.reset(new float[Orb::COUNT * 4]);
+	attributes.reset(new float[count * 4]);
 	init_extensions();
 
 	world.left = -8.0f;
@@ -106,7 +106,7 @@ Orbs::Orbs(int w, int h, int count)
 	glEnableVertexAttribArray(4);
 
 	// generate the orbs
-	for(int i = 0; i < Orb::COUNT; ++i)
+	for(int i = 0; i < count; ++i)
 		orb_list.push_back({});
 }
 
@@ -148,21 +148,21 @@ void Orbs::step()
 			orb.yv = -orb.yv;
 		}
 
-		Orb::attributes[index + 0] = orb.x;
-		Orb::attributes[index + 1] = orb.y;
-		Orb::attributes[index + 2] = orb.rot;
-		Orb::attributes[index + 3] = orb.texture / 6.0f;
+		attributes[index + 0] = orb.x;
+		attributes[index + 1] = orb.y;
+		attributes[index + 2] = orb.rot;
+		attributes[index + 3] = orb.texture / 6.0f;
 		index += 4;
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_attribute);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * Orb::COUNT * 4, Orb::attributes.get(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * orb_list.size() * 4, attributes.get(), GL_DYNAMIC_DRAW);
 }
 
 void Orbs::render() const
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, Orb::COUNT);
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, orb_list.size());
 }
 
 void Orbs::stop()
@@ -177,8 +177,7 @@ void Orbs::stop()
 
 void Orbs::add()
 {
-	++Orb::COUNT;
-	Orb::attributes.reset(new float[Orb::COUNT * 4]);
+	attributes.reset(new float[(orb_list.size() + 1) * 4]);
 	orb_list.push_back({});
 }
 
@@ -187,7 +186,6 @@ void Orbs::remove()
 	if(orb_list.size() < 1)
 		return;
 
-	--Orb::COUNT;
 	orb_list.erase(orb_list.begin());
 }
 
