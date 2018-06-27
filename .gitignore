@@ -2,5 +2,6 @@
 *.obj
 *.res
 *.exe
+*.scr
 orbs
 .*.swp
