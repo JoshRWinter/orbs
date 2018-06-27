@@ -7,11 +7,16 @@ static void go();
 
 #undef main
 #ifdef _WIN32
-int WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+int WinMain(HINSTANCE, HINSTANCE, LPSTR args, int)
 #else
 int main(int argc, char *argv[])
 #endif // _WIN32
 {
+#ifdef _WIN32
+	const std::string cmd = args;
+	if(cmd.find("/p") != std::string::npos)
+		return 1;
+#endif // _WIN32
 	try
 	{
 		go();
