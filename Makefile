@@ -1,6 +1,6 @@
 CPPFLAGS := -Wall -Wno-unused-variable -g -c -std=c++17
 LFLAGS := -lSDL2 -lGL
-OBJECTS := main.o Orbs.o shaders.o
+OBJECTS := main.o Orbs.o ConfigManager.o shaders.o
 
 .PHONY: all clean release
 
@@ -10,10 +10,13 @@ all: orbs
 orbs: $(OBJECTS)
 	g++ -o $@ $(OBJECTS) $(LFLAGS)
 
-main.o: main.cpp Orbs.h
+main.o: main.cpp Orbs.h ConfigManager.h
 	g++ $(CPPFLAGS) $<
 
 Orbs.o: Orbs.cpp Orbs.h
+	g++ $(CPPFLAGS) $<
+
+ConfigManager.o: ConfigManager.cpp ConfigManager.h
 	g++ $(CPPFLAGS) $<
 
 shaders.o: shaders.cpp

@@ -1,7 +1,10 @@
 #include <stdexcept>
 #include <chrono>
 
+#include <stdio.h>
+
 #include "Orbs.h"
+#include "ConfigManager.h"
 
 static void go();
 
@@ -32,6 +35,22 @@ int main()
 
 void go()
 {
+	const char *settings[] =
+	{
+		"orbcount",
+		NULL
+	};
+
+	ConfigManager cm(settings);
+
+	const std::string param_orb_count = cm.get("orbcount").value_or("4");
+	int orb_count;
+	if(sscanf(param_orb_count.c_str(), "%d", &orb_count) != 1)
+	{
+		press::fwrite(stderr, "warning: could not convert \"{}\" to an integer!\n", param_orb_count);
+		orb_count = 4;
+	}
+
 	if(SDL_Init(SDL_INIT_VIDEO))
 		throw std::runtime_error("couldn't init sdl video");
 
@@ -59,7 +78,7 @@ void go()
 	SDL_GL_SetSwapInterval(1);
 
 	// application object
-	Orbs orbs(width, height, 10);
+	Orbs orbs(width, height, orb_count);
 
 	// event loop
 	bool quit = false;
