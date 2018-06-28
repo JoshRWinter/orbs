@@ -9,7 +9,7 @@ static void go();
 #ifdef _WIN32
 int WinMain(HINSTANCE, HINSTANCE, LPSTR args, int)
 #else
-int main(int argc, char *argv[])
+int main()
 #endif // _WIN32
 {
 #ifdef _WIN32
