@@ -94,6 +94,7 @@ Orbs::Orbs(int w, int h, int count)
 	glVertexAttribPointer(2, 2, GL_FLOAT, false, 4 * sizeof(float), NULL);
 	glVertexAttribPointer(3, 1, GL_FLOAT, false, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 	glVertexAttribPointer(4, 1, GL_FLOAT, false, 4 * sizeof(float), (void*)(3 * sizeof(float)));
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * count * 4, NULL, GL_DYNAMIC_DRAW);
 
 	glVertexAttribDivisor(2, 1);
 	glVertexAttribDivisor(3, 1);
@@ -156,7 +157,7 @@ void Orbs::step()
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_attribute);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * orb_list.size() * 4, attributes.get(), GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * orb_list.size() * 4, attributes.get());
 }
 
 void Orbs::render() const
@@ -179,6 +180,8 @@ void Orbs::add()
 {
 	attributes.reset(new float[(orb_list.size() + 1) * 4]);
 	orb_list.push_back({});
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_attribute);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * orb_list.size() * 4, NULL, GL_DYNAMIC_DRAW);
 }
 
 void Orbs::remove()
@@ -187,6 +190,8 @@ void Orbs::remove()
 		return;
 
 	orb_list.erase(orb_list.begin());
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_attribute);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * orb_list.size() * 4, NULL, GL_DYNAMIC_DRAW);
 }
 
 void Orbs::load_texture()
@@ -279,6 +284,7 @@ void Orbs::init_extensions()
 	glVertexAttribDivisor = (decltype(glVertexAttribDivisor))getproc("glVertexAttribDivisor");
 	glUniform1f = (decltype(glUniform1f))getproc("glUniform1f");
 	glDrawElementsInstanced = (decltype(glDrawElementsInstanced))getproc("glDrawElementsInstanced");
+	glBufferSubData = (decltype(glBufferSubData))getproc("glBufferSubData");
 }
 
 void Orbs::initortho(float *matrix,float left,float right,float bottom,float top,float znear,float zfar)

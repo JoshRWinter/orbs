@@ -47,6 +47,7 @@ static PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
 static PFNGLVERTEXATTRIBDIVISORPROC glVertexAttribDivisor;
 static PFNGLUNIFORM1FPROC glUniform1f;
 static PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced;
+static PFNGLBUFFERSUBDATAPROC glBufferSubData;
 
 #define PI 3.1415926f
 
