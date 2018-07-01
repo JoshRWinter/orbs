@@ -74,15 +74,6 @@ ConfigManager::ConfigManager(const char **settings)
 	}
 }
 
-std::optional<std::string> ConfigManager::get(const char *setting) const
-{
-	const std::unordered_map<std::string, std::string>::const_iterator it = params.find(setting);
-	if(it == params.end())
-		return std::nullopt;
-	else
-		return it->second;
-}
-
 void ConfigManager::create(const std::string &loc)
 {
 	std::ofstream out(loc);

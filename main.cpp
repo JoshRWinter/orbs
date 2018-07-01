@@ -43,13 +43,7 @@ void go()
 
 	ConfigManager cm(settings);
 
-	const std::string param_orb_count = cm.get("orbcount").value_or("4");
-	int orb_count;
-	if(sscanf(param_orb_count.c_str(), "%d", &orb_count) != 1)
-	{
-		press::fwrite(stderr, "warning: could not convert \"{}\" to an integer!\n", param_orb_count);
-		orb_count = 4;
-	}
+	const int orb_count = cm.get<int>("orbcount").value_or(4);
 
 	if(SDL_Init(SDL_INIT_VIDEO))
 		throw std::runtime_error("couldn't init sdl video");
